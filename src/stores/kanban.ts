@@ -8,16 +8,7 @@ export interface Task {
   priority: 'high' | 'medium' | 'low';
   dueDate: string;
   assignee: string;
-  attachments: string[];
-  comments: Comment[];
   columnId?: string;
-}
-
-export interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
 }
 
 export interface Column {
@@ -32,7 +23,7 @@ const loadFromLocalStorage = () => {
 };
 
 export const useKanbanStore = defineStore('kanban', () => {
-  const defaultColumns = ref<Column[]>([
+  const defaultColumns = [
     {
       id: 'todo',
       title: 'To Do',
@@ -48,14 +39,11 @@ export const useKanbanStore = defineStore('kanban', () => {
       title: 'Done',
       tasks: []
     }
-  ]);
+  ];
 
   const columns = ref<Column[]>(loadFromLocalStorage()?.columns || defaultColumns);
 
-  // Save to localStorage whenever columns change
-  watch(
-    columns,
-    (newColumns) => {
+  watch( columns, (newColumns) => {
       localStorage.setItem('kanban-data', JSON.stringify({
         columns: newColumns
       }));
@@ -108,21 +96,21 @@ export const useKanbanStore = defineStore('kanban', () => {
     }
   };
 
-  const addColumn = (title: string) => {
+  const addColumn = (title: string) => { //
     const newColumn: Column = {
-      id: crypto.randomUUID(), // Generate a unique ID
+      id: crypto.randomUUID(),
       title: title,
       tasks: []
     };
     columns.value.push(newColumn);
   };
 
-  const moveColumn = (fromIndex: number, toIndex: number) => {
+  const moveColumn = (fromIndex: number, toIndex: number) => { //
     const columnToMove = columns.value.splice(fromIndex, 1)[0];
     columns.value.splice(toIndex, 0, columnToMove);
   };
 
-  const deleteColumn = (columnId: string) => {
+  const deleteColumn = (columnId: string) => { //
     const index = columns.value.findIndex(col => col.id === columnId);
     if (index !== -1) {
       columns.value.splice(index, 1);

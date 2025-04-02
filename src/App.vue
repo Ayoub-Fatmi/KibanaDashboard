@@ -17,7 +17,7 @@ onMounted(() => {
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kanban Dashboard</h1>
         <button
           @click="themeStore.toggleTheme"
-          class="p-2 rounded-full focus:outline-none"
+          class="p-2 rounded-full"
           :title="themeStore.darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
         >
           <svg

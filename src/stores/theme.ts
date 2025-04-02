@@ -6,26 +6,18 @@ export const useThemeStore = defineStore('theme', () => {
 
   const loadTheme = () => {
     if (typeof window !== 'undefined') {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-        darkMode.value = prefersDark.matches;
-        
-        prefersDark.addEventListener('change', (e) => {
-          darkMode.value = e.matches;
-        });
-      }
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+      darkMode.value = prefersDark.matches;
+    }
   }
 
-  // Load saved theme preference
   if (typeof localStorage !== 'undefined') {
     darkMode.value = localStorage.getItem('theme') === 'dark';
   }
   
-  // Watch for changes and apply them
   watch(darkMode, (newVal) => {
-    // Save preference
     localStorage.setItem('theme', newVal ? 'dark' : 'light');
     
-    // Apply class to document
     if (newVal) {
       document.documentElement.classList.add('dark');
     } else {

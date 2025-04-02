@@ -23,9 +23,7 @@ const taskForm = ref<Partial<Task>>({
   description: '',
   priority: 'medium',
   dueDate: new Date().toISOString().split('T')[0],
-  assignee: '',
-  attachments: [],
-  comments: []
+  assignee: ''
 });
 
 const resetForm = () => {
@@ -34,9 +32,7 @@ const resetForm = () => {
     description: '',
     priority: 'medium',
     dueDate: new Date().toISOString().split('T')[0],
-    assignee: '',
-    attachments: [],
-    comments: []
+    assignee: ''
   };
 };
 
@@ -49,7 +45,7 @@ watch(() => props.task, (newTask) => {
 }, { immediate: true });
 
 
-const validateDate = (dateString) => {
+const validateDate = (dateString : string) => {
   const selectedDate = new Date(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -63,20 +59,16 @@ const validateDate = (dateString) => {
 };
 
 const handleSubmit = () => {
-  if (!validateDate(taskForm.value.dueDate)) {
-    return; // Stop submission if date is invalid
+  if (!validateDate((taskForm.value.dueDate)?.toString() || '')) {
+    return; 
   }
-
+  console.log(props.task);
   if (props.task) {
-    // Edit existing task
     emit('update', props.task.columnId || 'todo', props.task.id, taskForm.value);
   } else {
-    // Create new task
     const task: Task = {
       id: crypto.randomUUID(),
-      ...taskForm.value,
-      attachments: [],
-      comments: []
+      ...taskForm.value
     } as Task;
     store.addTask('todo', task);
   }
@@ -88,7 +80,7 @@ const handleSubmit = () => {
 
 <template>
   <Dialog :open="isOpen" @close="emit('close')" class="relative z-50">
-    <div class="fixed inset-0 bg-black/30" aria-hidden="true" />
+    <div class="fixed inset-0 bg-black/30" aria-hidden="true"> </div>
     
     <div class="fixed inset-0 flex items-center justify-center p-4">
       <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
@@ -133,7 +125,7 @@ const handleSubmit = () => {
             <input
               type="date"
               v-model="taskForm.dueDate"
-              @change="validateDate(taskForm.dueDate)"
+              @change="validateDate(taskForm.dueDate || '')"
               :min="new Date().toISOString().split('T')[0]"
               required
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"

@@ -8,7 +8,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'update': [updates: Partial<Task>];
   'click': [];
   'delete': []; 
 }>();
@@ -47,14 +46,6 @@ const formattedDueDate = computed(() => {
     <div class="mt-4 flex items-center justify-between">
       <span class="text-xs text-gray-500">Due: {{ formattedDueDate }}</span>
       <span class="text-xs bg-gray-200 px-2 py-1 rounded">{{ task.assignee }}</span>
-    </div>
-    <div class="mt-2 flex items-center gap-2">
-      <span v-if="task.attachments.length" class="text-xs text-gray-500">
-        📎 {{ task.attachments.length }}
-      </span>
-      <span v-if="task.comments.length" class="text-xs text-gray-500">
-        💬 {{ task.comments.length }}
-      </span>
     </div>
   </div>
 </template>

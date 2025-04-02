@@ -4,19 +4,27 @@ import draggable from 'vuedraggable';
 import { Column, Task, useKanbanStore } from '../stores/kanban';
 import TaskCard from './TaskCard.vue';
 import TaskForm from './TaskForm.vue';
+import ColumnForm from './ColumnForm.vue';
+import DeleteForm from './DeleteForm.vue';
 
 const store = useKanbanStore();
 const isTaskFormOpen = ref(false);
-const selectedTask = ref(null);
+const selectedTask = ref<Task | null>(null);
 
-const handleDragEnd = (e, columnId) => {
+const handleDragEnd = (e) => {
   if (e.added) {
     const { element: task, newIndex } = e.added;
-    store.moveTask(task.sourceColumn || 'todo', columnId, task.id);
+    store.moveTask(task.sourceColumn || 'todo', newIndex, task.id);
+  }
+};
+const handleColumnDragEnd = (e) => {
+  if (e.moved) {
+    store.moveColumn(e.moved.oldIndex, e.moved.newIndex);
   }
 };
 
-const openEditTask = (task) => {
+//--- Task Form Start
+const openEditTask = (task : Task) => {
   selectedTask.value = task;
   isTaskFormOpen.value = true;
 };
@@ -25,46 +33,28 @@ const closeTaskForm = () => {
   isTaskFormOpen.value = false;
   selectedTask.value = null;
 };
-
+//--- Task Form End
+//---- Delete start
 const taskToDelete = ref<{task: Task, columnId: string} | null>(null);
-const isTaskDeleteDialogOpen = ref(false);
+const columnToDelete = ref<Column | null>(null);
+const isDeleteDialogOpen = ref(false);
+// const isTaskDeleteDialogOpen = ref(false);
 
 const confirmDeleteTask = (task: Task, columnId: string) => {
   taskToDelete.value = { task, columnId };
-  isTaskDeleteDialogOpen.value = true;
+  // isTaskDeleteDialogOpen.value = true;
+  isDeleteDialogOpen.value = true;
+
 };
 
 const deleteTask = () => {
   if (taskToDelete.value) {
     store.deleteTask(taskToDelete.value.columnId, taskToDelete.value.task.id);
-    isTaskDeleteDialogOpen.value = false;
+    // isTaskDeleteDialogOpen.value = false;
     taskToDelete.value = null;
+    isDeleteDialogOpen.value = false;
   }
 };
-
-const isColumnFormOpen = ref(false);
-const newColumnTitle = ref('');
-
-const openColumnForm = () => {
-  newColumnTitle.value = '';
-  isColumnFormOpen.value = true;
-};
-
-const addNewColumn = () => {
-  if (newColumnTitle.value.trim()) {
-    store.addColumn(newColumnTitle.value.trim());
-    isColumnFormOpen.value = false;
-  }
-};
-
-const handleColumnDragEnd = (e) => {
-  if (e.moved) {
-    store.moveColumn(e.moved.oldIndex, e.moved.newIndex);
-  }
-};
-
-const columnToDelete = ref<Column | null>(null);
-const isDeleteDialogOpen = ref(false);
 
 const confirmDeleteColumn = (column: Column) => {
   columnToDelete.value = column;
@@ -78,6 +68,30 @@ const deleteColumn = () => {
     columnToDelete.value = null;
   }
 };
+
+const deleteColumnOrTask = (typeOfDelete : string) => {
+  console.log(typeOfDelete);
+  if (typeOfDelete === 'column') {
+    deleteColumn();
+  } else if (typeOfDelete === 'task') {
+    deleteTask();
+  }
+}
+
+const closeDeleteForm = () => {
+  isDeleteDialogOpen.value = false;
+  columnToDelete.value = null;
+  taskToDelete.value = null;
+};
+//--- Delete End
+//--- Column Form Start
+const isColumnFormOpen = ref(false);
+
+const openColumnForm = () => { 
+  isColumnFormOpen.value = true;
+};
+
+//--- Column Form End
 </script>
 
 <template>
@@ -97,32 +111,10 @@ const deleteColumn = () => {
       </button>
     </div>
     
-    <!-- <div class="flex gap-6 min-h-[calc(100vh-12rem)] h-full justify-center">
-      <div v-for="column in store.columns" :key="column.id" class="kanban-column flex flex-col">
-        <h2 class="text-lg font-semibold mb-4">{{ column.title }}</h2>
-        <draggable
-          :list="column.tasks"
-          group="tasks"
-          item-key="id"
-          class="space-y-4 flex-1 min-h-full"
-          @end="(e) => handleDragEnd(e, column.id)"
-        >
-          <template #item="{ element }">
-            <TaskCard 
-              :task="element" 
-              @click="openEditTask(element)"
-              @update="store.updateTask(column.id, element.id, $event)"
-            />
-          </template>
-        </draggable>
-      </div>
-    </div> -->
-    
     <draggable
       v-model="store.columns"
       group="columns"
       item-key="id"
-      tag="div"
       handle=".column-handle"
       @end="handleColumnDragEnd"
       class="flex gap-6 min-h-[calc(100vh-12rem)] h-full justify-center"
@@ -154,13 +146,12 @@ const deleteColumn = () => {
             group="tasks"
             item-key="id"
             class="space-y-4 flex-1 min-h-full"
-            @end="(e) => handleDragEnd(e, column.id)"
+            @end="handleDragEnd"
           >
             <template #item="{ element }">
               <TaskCard 
                 :task="element" 
                 @click="openEditTask(element)"
-                @update="store.updateTask(column.id, element.id, $event)"
                 @delete="confirmDeleteTask(element, column.id)"
               />
             </template>
@@ -176,114 +167,19 @@ const deleteColumn = () => {
       @update="(columnId, taskId, updates) => store.updateTask(columnId, taskId, updates)"
     />
 
+    <ColumnForm
+      :is-open="isColumnFormOpen"
+      @close="isColumnFormOpen = false"
+      @add=" (title) => store.addColumn(title)"
+    />
 
-    <Dialog :open="isColumnFormOpen" @close="isColumnFormOpen = false" class="relative z-50">
-      <div class="fixed inset-0 bg-black/30" aria-hidden="true" />
-      
-      <div class="fixed inset-0 flex items-center justify-center p-4">
-        <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-          <DialogTitle class="text-lg font-medium leading-6 text-gray-900 mb-4">
-            Add New Column
-          </DialogTitle>
-          
-          <form @submit.prevent="addNewColumn" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Column Title</label>
-              <input
-                type="text"
-                v-model="newColumnTitle"
-                required
-                class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-            
-            <div class="mt-4 flex justify-end space-x-2">
-              <button
-                type="button"
-                @click="isColumnFormOpen = false"
-                class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-              >
-                Add Column
-              </button>
-            </div>
-          </form>
-        </DialogPanel>
-      </div>
-    </Dialog>
-
-
-    <!-- --------------------------------------------DELETE COLUMN -->
-  <Dialog :open="isDeleteDialogOpen" @close="isDeleteDialogOpen = false" class="relative z-50">
-    <div class="fixed inset-0 bg-black/30" aria-hidden="true" ></div>
-    <div class="fixed inset-0 flex items-center justify-center p-4">
-      <DialogPanel class="w-full max-w-md rounded-2xl bg-white p-6">
-        <DialogTitle class="text-lg font-medium text-gray-900">
-          Delete Column
-        </DialogTitle>
-        <div class="mt-4">
-          <p class="text-sm text-gray-500">
-            Are you sure you want to delete "{{ columnToDelete?.title }}"?
-            This will also delete all {{ columnToDelete?.tasks.length }} tasks in this column.
-          </p>
-        </div>
-        <div class="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            @click="isDeleteDialogOpen = false"
-            class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            @click="deleteColumn"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
-          >
-            Delete
-          </button>
-        </div>
-      </DialogPanel>
-    </div>
-  </Dialog>
-
-  <!-- delete task -->
-  <Dialog :open="isTaskDeleteDialogOpen" @close="isTaskDeleteDialogOpen = false" class="relative z-50">
-    <div class="fixed inset-0 bg-black/30" aria-hidden="true" />
-    <div class="fixed inset-0 flex items-center justify-center p-4">
-      <DialogPanel class="w-full max-w-md rounded-2xl bg-white p-6">
-        <DialogTitle class="text-lg font-medium text-gray-900">
-          Delete Task
-        </DialogTitle>
-        <div class="mt-4">
-          <p class="text-sm text-gray-500">
-            Are you sure you want to delete "{{ taskToDelete?.task.title }}"?
-          </p>
-        </div>
-        <div class="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            @click="isTaskDeleteDialogOpen = false"
-            class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            @click="deleteTask"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
-          >
-            Delete
-          </button>
-        </div>
-      </DialogPanel>
-    </div>
-  </Dialog>
+    <deleteForm 
+      :isOpen="isDeleteDialogOpen" 
+      :column-to-delete="columnToDelete"
+      :task-to-delete="taskToDelete"
+      @close="closeDeleteForm" 
+      @delete="(typeOfDelete : string ) => deleteColumnOrTask(typeOfDelete)"
+    />
 
   </div>
 </template>
