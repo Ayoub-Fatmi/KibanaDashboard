@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .task-card {
+    @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow;
+  }
+  
+  .kanban-column {
+    @apply bg-gray-100 p-4 rounded-lg w-80;
+  }
+  
+  .priority-high {
+    @apply border-l-4 border-red-500;
+  }
+  
+  .priority-medium {
+    @apply border-l-4 border-yellow-500;
+  }
+  
+  .priority-low {
+    @apply border-l-4 border-green-500;
+  }
+}
+
+/* Form styles */
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm;
+}
+
+label {
+  @apply block text-sm font-medium text-gray-700;
+}
