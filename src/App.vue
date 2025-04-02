@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import KanbanBoard from './components/KanbanBoard.vue';
 import { useThemeStore } from './stores/theme';
 
 const themeStore = useThemeStore();
@@ -42,7 +41,7 @@ onMounted(() => {
       </div>
     </header>
     <main>
-      <KanbanBoard />
+      <router-view></router-view>
     </main>
   </div>
 </template>

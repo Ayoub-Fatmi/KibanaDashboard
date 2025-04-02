@@ -17,9 +17,20 @@ export interface Column {
   tasks: Task[];
 }
 
+export interface DeletedTask extends Task {
+  deletedAt: string;
+}
+
+
 const loadFromLocalStorage = () => {
   const savedData = localStorage.getItem('kanban-data');
   return savedData ? JSON.parse(savedData) : null;
+};
+
+
+const loadDeletedFromLocalStorage = () => {
+  const deletedData = localStorage.getItem('kanban-Deleted-data');
+  return deletedData ? JSON.parse(deletedData) : null;
 };
 
 export const useKanbanStore = defineStore('kanban', () => {
@@ -40,6 +51,16 @@ export const useKanbanStore = defineStore('kanban', () => {
       tasks: []
     }
   ];
+
+  const deletedTasks = ref<DeletedTask[]>(loadDeletedFromLocalStorage()?.deletedTasks || []);
+
+  watch( deletedTasks, (newDeletedTasks) => {
+      localStorage.setItem('kanban-Deleted-data', JSON.stringify({
+        deletedTasks: newDeletedTasks
+      }));
+    },
+    { deep: true }
+  );
 
   const columns = ref<Column[]>(loadFromLocalStorage()?.columns || defaultColumns);
 
@@ -62,12 +83,43 @@ export const useKanbanStore = defineStore('kanban', () => {
     }
   };
 
+  // const deleteTask = (columnId: string, taskId: string) => {
+  //   const column = columns.value.find(col => col.id === columnId);
+  //   if (column) {
+  //     const taskIndex = column.tasks.findIndex(task => task.id === taskId);
+  //     if (taskIndex !== -1) {
+  //       column.tasks.splice(taskIndex, 1);
+  //     }
+  //   }
+  // };
+
   const deleteTask = (columnId: string, taskId: string) => {
     const column = columns.value.find(col => col.id === columnId);
     if (column) {
       const taskIndex = column.tasks.findIndex(task => task.id === taskId);
       if (taskIndex !== -1) {
-        column.tasks.splice(taskIndex, 1);
+        const [deletedTask] = column.tasks.splice(taskIndex, 1);
+        // Add to deleted tasks with timestamp
+        deletedTasks.value.unshift({
+          ...deletedTask,
+          deletedAt: new Date().toISOString()
+        });
+        // Keep only last 50 deleted tasks
+        if (deletedTasks.value.length > 50) {
+          deletedTasks.value.pop();
+        }
+      }
+    }
+  };
+
+  const restoreTask = (taskId: string) => {
+    const taskIndex = deletedTasks.value.findIndex(t => t.id === taskId);
+    if (taskIndex !== -1) {
+      const [task] = deletedTasks.value.splice(taskIndex, 1);
+      const columnId = task.columnId || 'todo';
+      const column = columns.value.find(col => col.id === columnId);
+      if (column) {
+        column.tasks.push(task);
       }
     }
   };
@@ -119,12 +171,14 @@ export const useKanbanStore = defineStore('kanban', () => {
 
   return {
     columns,
+    deletedTasks,
     addTask,
     deleteTask,
     moveTask,
     updateTask,
     addColumn,
     moveColumn,
-    deleteColumn
+    deleteColumn,
+    restoreTask
   };
 });
