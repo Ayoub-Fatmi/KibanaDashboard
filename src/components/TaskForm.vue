@@ -62,9 +62,16 @@ const handleSubmit = () => {
   if (!validateDate((taskForm.value.dueDate)?.toString() || '')) {
     return; 
   }
-  console.log(props.task);
+  
   if (props.task) {
-    emit('update', props.task.columnId || 'todo', props.task.id, taskForm.value);
+    const currentColumn = store.columns.find(col => 
+      col.tasks.some(t => t.id === props.task?.id)
+    );    
+    if (currentColumn) {
+      emit('update', currentColumn.id, props.task.id, taskForm.value);
+    } else {
+      emit('update', props.task.columnId || 'todo', props.task.id, taskForm.value);
+    }
   } else {
     const task: Task = {
       id: crypto.randomUUID(),
