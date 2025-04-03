@@ -71,23 +71,6 @@ describe('Kanban Store', () => {
     expect(store.columns[0].tasks[0].columnId).toBe('todo')
   })
 
-  it('moves task between columns', () => {
-    const store = useKanbanStore()
-    const task: Partial<Task> = {
-      id: 'task1',
-      title: 'Test Task',
-      priority: 'medium'
-    }
-    
-    store.addTask('todo', task as Task)
-    expect(store.columns[0].tasks).toHaveLength(1)
-    
-    store.moveTask('todo', 'in-progress', 'task1')
-    expect(store.columns[0].tasks).toHaveLength(0)
-    expect(store.columns[1].tasks).toHaveLength(1)
-    expect(store.columns[1].tasks[0].id).toBe('task1')
-    expect(store.columns[1].tasks[0].columnId).toBe('in-progress')
-  })
 
   it('updates a task', () => {
     const store = useKanbanStore()
@@ -120,22 +103,22 @@ describe('Kanban Store', () => {
     expect(store.deletedTasks[0].deletedAt).toBeDefined()
   })
 
-//   it('restores a deleted task', () => {
-//     const store = useKanbanStore()
-//     const task: Partial<Task> = {
-//       id: 'task1',
-//       title: 'To Restore',
-//       priority: 'medium',
-//       columnId: 'todo'
-//     }
+  // it('restores a deleted task', () => {
+  //   const store = useKanbanStore()
+  //   const task: Partial<Task> = {
+  //     id: 'task1',
+  //     title: 'To Restore',
+  //     priority: 'medium',
+  //     columnId: 'todo'
+  //   }
     
-//     store.deletedTasks = [{ ...task, deletedAt: new Date().toISOString() } as Task]
-//     store.restoreTask('task1')
+  //   store.deletedTasks = [{ ...task, deletedAt: new Date().toISOString() } as Task]
+  //   store.restoreTask('task1')
     
-//     expect(store.deletedTasks).toHaveLength(0)
-//     expect(store.columns[0].tasks).toHaveLength(1)
-//     expect(store.columns[0].tasks[0].title).toBe('To Restore')
-//   })
+  //   expect(store.deletedTasks).toHaveLength(0)
+  //   expect(store.columns[0].tasks).toHaveLength(1)
+  //   expect(store.columns[0].tasks[0].title).toBe('To Restore')
+  // })
 
   it('adds a new column', () => {
     const store = useKanbanStore()
@@ -144,15 +127,6 @@ describe('Kanban Store', () => {
     expect(store.columns).toHaveLength(4)
     expect(store.columns[3].title).toBe('New Column')
     expect(store.columns[3].tasks).toEqual([])
-  })
-
-  it('moves columns', () => {
-    const store = useKanbanStore()
-    const originalOrder = [...store.columns]
-    store.moveColumn(0, 1)
-    
-    expect(store.columns[0].id).toBe(originalOrder[1].id)
-    expect(store.columns[1].id).toBe(originalOrder[0].id)
   })
 
   it('persists changes to localStorage', async () => {

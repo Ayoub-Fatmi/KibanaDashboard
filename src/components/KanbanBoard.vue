@@ -11,16 +11,11 @@ const store = useKanbanStore();
 const isTaskFormOpen = ref(false);
 const selectedTask = ref<Task | null>(null);
 
-const handleDragEnd = (e) => {
+const handleDragEnd = (e, columnId : string) => {
   if (e.added) {
-    const { element: task, newIndex } = e.added;
-    store.moveTask(task.sourceColumn || 'todo', newIndex, task.id);
-  }
-};
-const handleColumnDragEnd = (e) => {
-  if (e.moved) {
-    store.moveColumn(e.moved.oldIndex, e.moved.newIndex);
-  }
+    const { element: task } = e.added;
+    store.moveTask(columnId, task.id);
+  } 
 };
 
 //--- Task Form Start
@@ -119,7 +114,6 @@ const openColumnForm = () => {
       group="columns"
       item-key="id"
       handle=".column-handle"
-      @end="handleColumnDragEnd"
       class="flex gap-6 min-h-[calc(100vh-12rem)] h-full justify-center"
     >
       <template #item="{ element: column }">
@@ -149,7 +143,8 @@ const openColumnForm = () => {
             group="tasks"
             item-key="id"
             class="space-y-4 flex-1 min-h-full"
-            @end="handleDragEnd"
+            :data-column-id="column.id"
+            @change="(e) => handleDragEnd(e, column.id)"
           >
             <template #item="{ element }">
               <TaskCard 

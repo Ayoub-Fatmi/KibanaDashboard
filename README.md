@@ -12,6 +12,7 @@ A responsive Kanban board built with Vue 3, TypeScript, and Pinia with drag-and-
 - 🌓 Light/dark theme toggle
 - 💾 Automatic local storage saving
 - 📅 Date validation for tasks
+- 
 
 ## Technologies Used
 

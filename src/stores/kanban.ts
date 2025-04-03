@@ -98,15 +98,21 @@ export const useKanbanStore = defineStore('kanban', () => {
   };
 
   const restoreTask = (taskId: string) => {
+    debugger;
     const taskIndex = deletedTasks.value.findIndex(t => t.id === taskId);
     if (taskIndex !== -1) {
       const [task] = deletedTasks.value.splice(taskIndex, 1);
-      const columnId = task.columnId || 'todo';
-      const column = columns.value.find(col => col.id === columnId);
+
+      const columnId = task.columnId;
+      const column = columns.value.findIndex(col => col.id === columnId) !== -1 ? columns.value.find(col => col.id === columnId) : columns.value.find(col => col.id === "todo");
+      console.log("column", column, "// columnId", columnId);
       if (column) {
         column.tasks.push(task);
+
       }
+      debugger;
     }
+    debugger;
   };
 
   const permanentlyDeleteTask = (taskId: string) => {
@@ -116,16 +122,17 @@ export const useKanbanStore = defineStore('kanban', () => {
     }
   };
 
-  const moveTask = (fromColumnId: string, toColumnId: string, taskId: string) => {
-    const fromColumn = columns.value.find(col => col.id === fromColumnId);
+  const moveTask = (toColumnId: string, taskId: string) => {
+    console.log("toColumnId", toColumnId, "// taskId", taskId);
     const toColumn = columns.value.find(col => col.id === toColumnId);
-    
-    if (fromColumn && toColumn) {
-      const taskIndex = fromColumn.tasks.findIndex(task => task.id === taskId);
+    if (toColumn) {
+      const taskIndex = toColumn.tasks.findIndex(task => task.id === taskId);      
       if (taskIndex !== -1) {
-        const [task] = fromColumn.tasks.splice(taskIndex, 1);
-        task.columnId = toColumnId;
+        const [task] = toColumn.tasks.splice(taskIndex, 1);
+        task.columnId = toColumnId; 
+        console.log("1",toColumn.tasks);
         toColumn.tasks.push(task);
+        console.log("1",toColumn.tasks);
       }
     }
   };
@@ -149,13 +156,13 @@ export const useKanbanStore = defineStore('kanban', () => {
     columns.value.push(newColumn);
   };
 
-  const moveColumn = (fromIndex: number, toIndex: number) => { //
-    const columnToMove = columns.value.splice(fromIndex, 1)[0];
-    columns.value.splice(toIndex, 0, columnToMove);
-  };
 
   const deleteColumn = (columnId: string) => { //
     const index = columns.value.findIndex(col => col.id === columnId);
+    const column = columns.value.find(col => col.id === columnId);
+    column?.tasks.forEach(task => {
+      deleteTask(columnId, task.id);
+    })
     if (index !== -1) {
       columns.value.splice(index, 1);
     }
@@ -169,7 +176,6 @@ export const useKanbanStore = defineStore('kanban', () => {
     moveTask,
     updateTask,
     addColumn,
-    moveColumn,
     deleteColumn,
     restoreTask,
     permanentlyDeleteTask

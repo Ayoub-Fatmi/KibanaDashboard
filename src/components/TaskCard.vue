@@ -32,6 +32,7 @@ const formattedDueDate = computed(() => {
     :class="['task-card', priorityClass]"
     @click="emit('click')"
   >
+  
     <div class="flex justify-between items-start">
       <h3 class="font-semibold">{{ task.title }}</h3>
       <button v-if="!deleted"
