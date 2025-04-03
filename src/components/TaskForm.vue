@@ -66,7 +66,7 @@ const handleSubmit = () => {
   if (props.task) {
     const currentColumn = store.columns.find(col => 
       col.tasks.some(t => t.id === props.task?.id)
-    );    
+    );
     if (currentColumn) {
       emit('update', currentColumn.id, props.task.id, taskForm.value);
     } else {

@@ -38,11 +38,9 @@ const closeTaskForm = () => {
 const taskToDelete = ref<{task: Task, columnId: string} | null>(null);
 const columnToDelete = ref<Column | null>(null);
 const isDeleteDialogOpen = ref(false);
-// const isTaskDeleteDialogOpen = ref(false);
 
 const confirmDeleteTask = (task: Task, columnId: string) => {
   taskToDelete.value = { task, columnId };
-  // isTaskDeleteDialogOpen.value = true;
   isDeleteDialogOpen.value = true;
 
 };
@@ -50,7 +48,6 @@ const confirmDeleteTask = (task: Task, columnId: string) => {
 const deleteTask = () => {
   if (taskToDelete.value) {
     store.deleteTask(taskToDelete.value.columnId, taskToDelete.value.task.id);
-    // isTaskDeleteDialogOpen.value = false;
     taskToDelete.value = null;
     isDeleteDialogOpen.value = false;
   }

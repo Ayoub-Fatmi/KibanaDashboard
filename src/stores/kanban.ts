@@ -83,28 +83,16 @@ export const useKanbanStore = defineStore('kanban', () => {
     }
   };
 
-  // const deleteTask = (columnId: string, taskId: string) => {
-  //   const column = columns.value.find(col => col.id === columnId);
-  //   if (column) {
-  //     const taskIndex = column.tasks.findIndex(task => task.id === taskId);
-  //     if (taskIndex !== -1) {
-  //       column.tasks.splice(taskIndex, 1);
-  //     }
-  //   }
-  // };
-
   const deleteTask = (columnId: string, taskId: string) => {
     const column = columns.value.find(col => col.id === columnId);
     if (column) {
       const taskIndex = column.tasks.findIndex(task => task.id === taskId);
       if (taskIndex !== -1) {
         const [deletedTask] = column.tasks.splice(taskIndex, 1);
-        // Add to deleted tasks with timestamp
         deletedTasks.value.unshift({
           ...deletedTask,
           deletedAt: new Date().toISOString()
         });
-        // Keep only last 50 deleted tasks
         if (deletedTasks.value.length > 50) {
           deletedTasks.value.pop();
         }
