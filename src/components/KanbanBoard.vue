@@ -11,7 +11,7 @@ const store = useKanbanStore();
 const isTaskFormOpen = ref(false);
 const selectedTask = ref<Task | null>(null);
 
-const handleDragEnd = (e, columnId : string) => {
+const handleDragEnd = (e : any, columnId : string) => {
   if (e.added) {
     const { element: task } = e.added;
     store.moveTask(columnId, task.id);
