@@ -5,11 +5,13 @@ import { format } from 'date-fns';
 
 const props = defineProps<{
   task: Task;
+  deleted?: boolean;
 }>();
 
 const emit = defineEmits<{
   'click': [];
-  'delete': []; 
+  'delete': [];
+  'deletePermanently': [];
 }>();
 
 const priorityClass = computed(() => {
@@ -32,10 +34,19 @@ const formattedDueDate = computed(() => {
   >
     <div class="flex justify-between items-start">
       <h3 class="font-semibold">{{ task.title }}</h3>
-      <button 
+      <button v-if="!deleted"
         @click.stop="emit('delete')"
         class="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
         title="Delete task"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <button v-else
+        @click.stop="emit('deletePermanently')"
+        class="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
+        title="Delete task permanently"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

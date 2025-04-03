@@ -33,7 +33,7 @@ const formattedDate = (dateString: string) => {
           :key="task.id"
           class="relative"
         >
-          <TaskCard :task="task" />
+          <TaskCard :task="task" :deleted="true" @delete-permanently="store.permanentlyDeleteTask(task.id)" />
           <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
             Deleted: {{ formattedDate(task.deletedAt) }}
           </div>

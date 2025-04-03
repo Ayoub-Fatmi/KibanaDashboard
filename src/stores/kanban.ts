@@ -93,9 +93,6 @@ export const useKanbanStore = defineStore('kanban', () => {
           ...deletedTask,
           deletedAt: new Date().toISOString()
         });
-        if (deletedTasks.value.length > 50) {
-          deletedTasks.value.pop();
-        }
       }
     }
   };
@@ -109,6 +106,13 @@ export const useKanbanStore = defineStore('kanban', () => {
       if (column) {
         column.tasks.push(task);
       }
+    }
+  };
+
+  const permanentlyDeleteTask = (taskId: string) => {
+    const taskIndex = deletedTasks.value.findIndex(t => t.id === taskId);
+    if (taskIndex !== -1) {
+      deletedTasks.value.splice(taskIndex, 1);
     }
   };
 
@@ -167,6 +171,7 @@ export const useKanbanStore = defineStore('kanban', () => {
     addColumn,
     moveColumn,
     deleteColumn,
-    restoreTask
+    restoreTask,
+    permanentlyDeleteTask
   };
 });
