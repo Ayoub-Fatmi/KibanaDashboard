@@ -199,21 +199,24 @@ describe("KanbanBoard.vue", () => {
             initialState: {
               kanban: {
                 taskToDelete: { task: mockTask, columnId: "col-1" },
-                columnToDelete: mockColumn
+                columnToDelete: mockColumn,
+                columns: [mockColumn]  // Add columns to match your component's expectations
               }
             }
           })
         ],
         stubs: {
-          TaskForm: true,
-          ColumnForm: true,
+          TaskForm: {
+            template: '<div v-if="isOpen"></div>',
+            props: ['isOpen']
+          },
+          ColumnForm: {
+            template: '<div v-if="isOpen"></div>',
+            props: ['isOpen']
+          },
           DeleteForm: {
-            template: '<div></div>',
-            methods: {
-              deleteHandler(type) {
-                this.$emit('delete', type);
-              }
-            }
+            template: '<div v-if="isOpen" data-test="delete-form"></div>',
+            props: ['isOpen', 'taskToDelete', 'columnToDelete']
           },
           draggable: true,
           RouterLink: true
@@ -223,18 +226,29 @@ describe("KanbanBoard.vue", () => {
 
     const store = useKanbanStore();
 
+    console.log(wrapper.html());
+    // Test TaskForm submission
     const taskForm = wrapper.findComponent({ name: "TaskForm" });
+    console.log(taskForm);
+    await taskForm.vm  // Make sure this exists before interacting
     await taskForm.vm.$emit("update", "1", "1", { title: "Updated Task" });
     expect(store.updateTask).toHaveBeenCalledWith("1", "1", { title: "Updated Task" });
 
+    // Test ColumnForm submission
     const columnForm = wrapper.findComponent({ name: "ColumnForm" });
     await columnForm.vm.$emit("add", "New Column");
     expect(store.addColumn).toHaveBeenCalledWith("New Column");
 
+    // Test DeleteForm - first make sure it exists
     const deleteForm = wrapper.findComponent({ name: "DeleteForm" });
+    expect(deleteForm.exists()).toBe(true);
+
+    // Test task deletion
     await deleteForm.vm.$emit("delete", "task");
     expect(store.deleteTask).toHaveBeenCalledWith("col-1", "task-1");
 
+    // Test column deletion
+    await deleteForm.vm  // Ensure VM exists
     await deleteForm.vm.$emit("delete", "column");
     expect(store.deleteColumn).toHaveBeenCalledWith("col-1");
   });
