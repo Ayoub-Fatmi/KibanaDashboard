@@ -13,7 +13,7 @@ A responsive Kanban board built with Vue 3, Pinia, and TypeScript featuring drag
   - Drag-and-drop to reorder columns
   - Delete columns (with confirmation)
   
-  ![Add Column](AddColumn.png) | ![Column Drag](columnDrag.png)
+  ![Add Column](./src/assets/AddColumn.png) | ![Column Drag](./src/assets/columnDrag.png)
   --- | ---
 
 ### Task Management
@@ -23,7 +23,7 @@ A responsive Kanban board built with Vue 3, Pinia, and TypeScript featuring drag
   - Edit existing tasks
   - Delete tasks (moved to recycle bin)
   
-  ![Add Task](AddTask.png) | ![Task Drag](TaskDrag.png)
+  ![Add Task](./src/assets/AddTask.png) | ![Task Drag](./src/assets/TaskDrag.png)
   --- | ---
 
 ### Advanced Features
@@ -33,12 +33,12 @@ A responsive Kanban board built with Vue 3, Pinia, and TypeScript featuring drag
   - Permanent deletion
   - Search and filter functionality
   
-  ![Deleted Tasks](DeletedTasks.png)
+  ![Deleted Tasks](./src/assets/DeletedTasks.png)
 
 - 🌓 **Theme Toggle**
   - Switch between light and dark modes
   
-  ![Light Mode](KanbanDashboard_Light.png)
+  ![Light Mode](./src/assets/KanbanDashboard_Light.png)
 
 ## Technical Stack
 
@@ -46,8 +46,5 @@ A responsive Kanban board built with Vue 3, Pinia, and TypeScript featuring drag
 - **State Management**: Pinia
 - **Type System**: TypeScript
 - **Drag-and-Drop**: vue-draggable
-- **UI Components**: Headless UI
 - **Styling**: Tailwind CSS
-- **Date Handling**: date-fns
-- **Routing**: Vue Router
 - **Persistence**: localStorage
